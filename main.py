@@ -2,15 +2,20 @@ import copy
 import random
 import sys
 import time
+import signal
 
 
 # informatii despre un nod din arborele de parcurgere (nu din graful initial)
+import stopit as stopit
+
+
 class NodParcurgere:
-    def __init__(self, info, parinte, cost=0, h=0):
+    def __init__(self, info, parinte, cost=0,mesaj = "", h=0):
         self.info = info
         self.parinte = parinte
         self.g = cost
         self.h = h
+        self.mesaj = mesaj
         self.f = self.g + self.h
 
     def obtineDrum(self):
@@ -24,7 +29,8 @@ class NodParcurgere:
     def afisDrum(self, afisCost=False, afisLung=False):  # returneaza si lungimea drumului
         l = self.obtineDrum()
         for i, nod in enumerate(l):
-            print(i + 1, ")\n", str(nod), sep="")
+            print(i + 1, ")\n",nod.mesaj,sep="")
+            print(str(nod), sep="")
         if afisCost:
             print("Cost: ", self.g)
         if afisCost:
@@ -48,7 +54,8 @@ class NodParcurgere:
 
     def __str__(self):
         sir = ""
-        for linie in self.info:
+        for i, linie in enumerate(self.info):
+            sir += f"{i} :  "
             sir += " ".join([str(elem) for elem in linie]) + "\n"
         sir += "\n"
         return sir
@@ -147,8 +154,8 @@ class Graph:  # graful problemei
 
     def genereazaSuccesori(self, nodCurent, tip_euristica="euristica banala"):
         listaSuccesori = []
-        for vas_turnator in nodCurent.info:
-            for vas_primitor in nodCurent.info:
+        for i_t , vas_turnator in enumerate(nodCurent.info):
+            for i_p, vas_primitor in enumerate(nodCurent.info):
                 if vas_primitor != vas_turnator:
                     litri_ramasi_vas_primitor = vas_primitor[0] - vas_primitor[1]
                     if litri_ramasi_vas_primitor > 0 and vas_turnator[1] > 0:
@@ -159,18 +166,22 @@ class Graph:  # graful problemei
                         new_vas_primitor = 0
                         new_vas_turnator = 0
                         litri_turnati = 0
+                        mesaj = ""
 
                         if vas_turnator[1] > litri_ramasi_vas_primitor:
                             #se umple vasul în care turnam
                             new_vas_primitor = (vas_primitor[0], vas_primitor[0], gr.combina_culori(vas_primitor[2], vas_turnator[2]))
                             new_vas_turnator = (vas_turnator[0], vas_turnator[1] - litri_ramasi_vas_primitor, vas_turnator[2])
                             litri_turnati = vas_primitor[0] - vas_primitor[1]
+                            mesaj = f"Din vasul {i_t} s-au turnat {litri_turnati} de {vas_turnator[2]} in vasul {i_p} "
 
                         if vas_turnator[1] <= litri_ramasi_vas_primitor:
                             #se goleste vasul din care turnam
                             new_vas_primitor = (vas_primitor[0], vas_primitor[1] + vas_turnator[1], gr.combina_culori(vas_primitor[2], vas_turnator[2]) )
                             new_vas_turnator = (vas_turnator[0], 0, "gol")
                             litri_turnati = vas_turnator[1]
+                            mesaj = f"Din vasul {i_t} s-au turnat {litri_turnati} litri de {vas_turnator[2]} in vasul {i_p} "
+
 
                         for vas in nodCurent.info:
                             if vas != vas_turnator and vas != vas_primitor:
@@ -189,7 +200,8 @@ class Graph:  # graful problemei
                             cost = litri_turnati
                         if vas_primitor[2] == "nedefinit":
                             cost += vas_primitor[1]
-                        listaSuccesori.append(NodParcurgere(newInfo, nodCurent, nodCurent.g + cost, self.calculeaza_h(newInfo, tip_euristica)))
+                        mesaj += f"cu costul {cost}."
+                        listaSuccesori.append(NodParcurgere(newInfo, nodCurent, nodCurent.g + cost,mesaj, self.calculeaza_h(newInfo, tip_euristica)))
         return listaSuccesori
 
     def combina_culori(self, culoare1, culoare2):
@@ -221,20 +233,17 @@ class Graph:  # graful problemei
             h = 0
             for vas_scop in self.scopuri:
                 for vas_curent in infoNod:
-                    if vas_scop[1] == vas_curent[2]:
-                        h += 1
+                    if vas_scop[1] == vas_curent[2] and vas_curent[0] >= vas_scop[0]:
+                        h+= abs(vas_scop[0] - vas_curent[1])
                         break
-
             return h
 
         if tip_euristica == "euristica neadmisibila":
             h = 0
-
             for vas_scop in self.scopuri:
                 for vas_curent in infoNod:
                     if vas_scop[0] != vas_curent[1] and vas_scop[1] != vas_curent[2]:
                         h += random.randrange(self.cost_max * self.max_capacitate * 4, self.cost_max * self.max_capacitate * 5  )
-
             return h
 
 
@@ -270,11 +279,11 @@ def a_star(gr, NSOL, tip_euristica):
             NSOL -= 1
             if NSOL == 0:
                 return
-        if len(c) < 3000 and stop_generate == False:
+        if len(c) < 5000 and stop_generate == False:
             lSuccesori = gr.genereazaSuccesori(nodCurent, tip_euristica=tip_euristica)
             total_succesori += len(lSuccesori)
 
-        if len(c) > 3000:
+        if len(c) > 5000:
             stop_generate = True
             lSuccesori = []
 
@@ -422,7 +431,7 @@ def breadth_first(gr, NSOL):
         total_succesori += len(lSuccesori)
         c.extend(lSuccesori)
 
-def uniform_cost(gr, nrSolutiiCautate=1):
+def uniform_cost(gr, NSOL=1):
     # in coada vom avea doar noduri de tip NodParcurgere (nodurile din arborele de parcurgere)
     c = [NodParcurgere(gr.start, None, 0, gr.calculeaza_h(gr.start))]
     max_c = 1
@@ -436,11 +445,11 @@ def uniform_cost(gr, nrSolutiiCautate=1):
         if gr.testeaza_scop(nodCurent):
             print("Solutie: ", end="")
             nodCurent.afisDrum()
-            print(f"nr maxim noduri in memorie: S{max_c}\n")
-            print(f"nr =total de noduri calculate: S{max_c}\n")
+            print(f"nr maxim noduri in memorie: {max_c}\n")
+            print(f"nr =total de noduri calculate: {max_c}\n")
             print("\n----------------\n")
-            nrSolutiiCautate -= 1
-            if nrSolutiiCautate == 0:
+            NSOL -= 1
+            if NSOL == 0:
                 return
         lSuccesori = gr.genereazaSuccesori(nodCurent)
         total_succesori += len(lSuccesori)
@@ -456,6 +465,16 @@ def uniform_cost(gr, nrSolutiiCautate=1):
             else:
                 c.append(s)
 
+
+@stopit.threading_timeoutable(default="intrat in timeout")
+def solve(NSOL):
+
+
+    return "functie finalizata"
+
+
+
+
 if __name__ == "__main__":
     print("Enter the input path:")
     #input_path = input()
@@ -463,12 +482,39 @@ if __name__ == "__main__":
     #/output_path = input()
     print("Enter the maximum number of solutions:")
     #NSOL = int(input())
+    NSOL = 3
     print("Enter the timeout time:")
     #timeout_time = int(input())
 
-    gr = Graph("input.txt")
+    gr = Graph("input_already_final.txt")
 
     print("\n\n##################\nSolutii obtinute cu A*:")
-
     t1 = time.time()
-    ida_star(gr, NSOL=3)
+
+    s = 1
+    while s != 0:
+        print("Alege un algoritm cu care sa rulezi problema:")
+        print("0 - STOP")
+        print("1 - BF")
+        print("2 - DF")
+        print("3 - DFI")
+        print("4 - A*")
+        print("5 - A* optimizat")
+        print("6 - Uniform cost")
+        print("7 - IDA*")
+        print("ALegerea ta: ", end="")
+        s = int(input())
+        if s == 1:
+            breadth_first(gr, NSOL=NSOL)
+
+        if s == 4:
+            a_star(gr, NSOL=NSOL, tip_euristica="euristica 2")
+        if s == 5:
+            a_star2(gr, NSOL=NSOL, tip_euristica="euristica 2")
+        if s == 6:
+            uniform_cost(gr, NSOL=NSOL)
+        if s == 7:
+            ida_star(gr, NSOL=NSOL)
+    rez = solve(3, timeout=10)
+    print("\nRezultat functie: {}".format(rez))
+
