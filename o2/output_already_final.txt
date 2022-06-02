@@ -1,0 +1,16 @@
+Solutie: 
+1) 
+10 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+Cost:  0
+Lungime:  1
+1.4059216976165771 secunde
+nr maxim noduri in memorie: 0
+nr total de noduri calculate: 0
+
+----------------

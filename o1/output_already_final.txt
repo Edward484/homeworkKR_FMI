@@ -1,0 +1,64 @@
+Solutie: 
+1) 
+0 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+Cost:  0
+Lungime:  1
+0.8726100921630859 secunde
+nr maxim noduri in memorie: 1
+nr total de noduri calculate: 0
+
+----------------
+Solutie: 
+1) 
+0 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+2) 
+Din vasul 2 s-au turnat 2 litri de albastru in vasul 3 cu costul 10.0 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 0 gol
+3 :  2 2 albastru
+4 :  5 4 maro
+5 :  20 10 kaki
+
+Cost:  10
+Lungime:  2
+0.8756957054138184 secunde
+nr maxim noduri in memorie: 141
+nr total de noduri calculate: 149
+
+----------------
+Solutie: 
+1) 
+0 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+2) 
+Din vasul 4 s-au turnat 1 de maro in vasul 1 cu costul 4.0 :  5 4 rosu
+1 :  1 1 maro
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 3 maro
+5 :  20 10 kaki
+
+Cost:  4
+Lungime:  2
+0.8776946067810059 secunde
+nr maxim noduri in memorie: 203
+nr total de noduri calculate: 215
+
+----------------

@@ -1,0 +1,128 @@
+Solutie: 
+1) 
+10 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+Cost:  0
+Lungime:  1
+9.484201192855835 secunde
+nr maxim noduri in memorie: 1
+nr total de noduri calculate: 0
+
+----------------
+Solutie: 
+1) 
+10 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+2) 
+Din vasul 4 s-au turnat 1 de maro in vasul 1 cu costul 4.0 :  5 4 rosu
+1 :  1 1 maro
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 3 maro
+5 :  20 10 kaki
+
+Cost:  4
+Lungime:  2
+9.487202167510986 secunde
+nr maxim noduri in memorie: 38
+nr total de noduri calculate: 41
+
+----------------
+Solutie: 
+1) 
+10 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+2) 
+Din vasul 0 s-au turnat 2 de rosu in vasul 3 cu costul 4.0 :  5 2 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 2 rosu
+4 :  5 4 maro
+5 :  20 10 kaki
+
+3) 
+Din vasul 3 s-au turnat 2 litri de rosu in vasul 0 cu costul 4.0 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+Cost:  8
+Lungime:  3
+9.494201183319092 secunde
+nr maxim noduri in memorie: 172
+nr total de noduri calculate: 218
+
+----------------
+Solutie: 
+1) 
+10 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+2) 
+Din vasul 4 s-au turnat 1 de maro in vasul 1 cu costul 4.0 :  5 4 rosu
+1 :  1 1 maro
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 3 maro
+5 :  20 10 kaki
+
+3) 
+Din vasul 1 s-au turnat 1 litri de maro in vasul 3 cu costul 4.0 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 1 maro
+4 :  5 3 maro
+5 :  20 10 kaki
+
+Cost:  8
+Lungime:  3
+9.498198986053467 secunde
+nr maxim noduri in memorie: 187
+nr total de noduri calculate: 252
+
+----------------
+Solutie: 
+1) 
+10 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+2) 
+Din vasul 4 s-au turnat 2 de maro in vasul 3 cu costul 8.0 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 2 maro
+4 :  5 2 maro
+5 :  20 10 kaki
+
+Cost:  8
+Lungime:  2
+9.50120210647583 secunde
+nr maxim noduri in memorie: 206
+nr total de noduri calculate: 277
+
+----------------
