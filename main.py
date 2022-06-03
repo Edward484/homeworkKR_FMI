@@ -30,7 +30,7 @@ class NodParcurgere:
         l = self.obtineDrum()
         for i, nod in enumerate(l):
             f.writelines(f"{i + 1}) \n")
-            f.write(f"{nod.mesaj}")
+            f.write(f"{nod.mesaj}\n")
             f.write(str(nod))
         if afisCost:
             f.write(f"Cost:  {self.g}\n")
@@ -262,7 +262,7 @@ def a_star(gr, NSOL, tip_euristica,output_path):
         with open(output_path, 'a') as f:
             f.write("Nu are solutii!\n")
             return "functie finalizata"
-    c = [NodParcurgere(gr.start, None, 0, gr.calculeaza_h(gr.start, tip_euristica))]
+    c = [NodParcurgere(gr.start, None, 0,"", gr.calculeaza_h(gr.start, tip_euristica))]
     stop_generate = False
     max_c = 1
     total_succesori = 0
@@ -314,7 +314,7 @@ def a_star(gr, NSOL, tip_euristica,output_path):
 @stopit.threading_timeoutable(default="intrat in timeout")
 def a_star2(gr,NSOL, tip_euristica, output_path):
     # in coada vom avea doar noduri de tip NodParcurgere (nodurile din arborele de parcurgere)
-    l_open = [NodParcurgere(gr.start, None, 0, gr.calculeaza_h(gr.start))]
+    l_open = [NodParcurgere(gr.start, None, 0,"", gr.calculeaza_h(gr.start))]
 
     # l_open contine nodurile candidate pentru expandare (este echivalentul lui c din A* varianta neoptimizata)
 
@@ -376,40 +376,40 @@ def a_star2(gr,NSOL, tip_euristica, output_path):
                 l_open.append(s)
 
 @stopit.threading_timeoutable(default="intrat in timeout")
-def ida_star(gr, NSOL):
-    nodStart = NodParcurgere(gr.start, None, 0, gr.calculeaza_h(gr.start))
+def ida_star(gr, NSOL,tip_euristica,output_path):
+    nodStart = NodParcurgere(gr.start, None, 0,"", gr.calculeaza_h(gr.start,tip_euristica))
     total_succesori = 0
 
     limita = nodStart.f
     while True:
 
-        NSOL, rez = construieste_drum(gr, nodStart, limita, NSOL, total_succesori)
-        if rez == "gata":
-            break
+        NSOL, rez = construieste_drum(gr, nodStart, limita, NSOL, total_succesori,tip_euristica,output_path)
+        if rez == "functie finalizata":
+            return "functie finalizata"
         if rez == float('inf'):
             break
         limita = rez
 
-def construieste_drum(gr, nodCurent, limita, NSOL,total_succesori):
+def construieste_drum(gr, nodCurent, limita, NSOL,total_succesori,tip_euristica,output_path):
     if nodCurent.f > limita:
         return NSOL, nodCurent.f
-    if gr.testeaza_scop(nodCurent) and nodCurent.f == limita:
-        print("Solutie: ")
-        nodCurent.afisDrum(afisCost=True, afisLung=True)
-        print(time.time() - t1, "secunde")
-        print(f"limita: {limita}")
-        print(f"nr total de noduri calculate: {total_succesori}")
-        print("\n----------------\n")
-        NSOL -= 1
-        if NSOL == 0:
-            return 0, "gata"
-    lSuccesori = gr.genereazaSuccesori(nodCurent)
+    if gr.testeaza_scop(nodCurent):
+        with open(output_path, 'a') as f:
+            f.writelines("Solutie: \n")
+            nodCurent.afisDrum(f, afisCost=True, afisLung=True)
+            f.writelines(f"{time.time() - t1} secunde\n")
+            f.writelines(f"nr total de noduri calculate: {total_succesori}\n")
+            f.writelines("\n----------------\n")
+            NSOL -= 1
+            if NSOL == 0:
+                return "functie finalizata", "functie finalizata"
+    lSuccesori = gr.genereazaSuccesori(nodCurent,tip_euristica)
     total_succesori+=len(lSuccesori)
     minim = float('inf')
     for s in lSuccesori:
-        NSOL, rez = construieste_drum(gr, s, limita, NSOL, total_succesori)
-        if rez == "gata":
-            return 0, "gata"
+        NSOL, rez = construieste_drum(gr, s, limita, NSOL, total_succesori,tip_euristica,output_path)
+        if rez == "functie finalizata":
+            return 0, "functie finalizata"
         if rez < minim:
             minim = rez
     return NSOL, minim
@@ -443,9 +443,9 @@ def breadth_first(gr, NSOL,output_path):
 
 
 @stopit.threading_timeoutable(default="intrat in timeout")
-def uniform_cost(gr, NSOL=1):
+def uniform_cost(gr, NSOL=1, output_path = "/o6/output.txt"):
     # in coada vom avea doar noduri de tip NodParcurgere (nodurile din arborele de parcurgere)
-    c = [NodParcurgere(gr.start, None, 0, gr.calculeaza_h(gr.start))]
+    c = [NodParcurgere(gr.start, None, 0,"", gr.calculeaza_h(gr.start))]
     max_c = 1
     total_succesori = 0
 
@@ -455,14 +455,16 @@ def uniform_cost(gr, NSOL=1):
         nodCurent = c.pop(0)
 
         if gr.testeaza_scop(nodCurent):
-            print("Solutie: ", end="")
-            nodCurent.afisDrum()
-            print(f"nr maxim noduri in memorie: {max_c}\n")
-            print(f"nr =total de noduri calculate: {max_c}\n")
-            print("\n----------------\n")
-            NSOL -= 1
-            if NSOL == 0:
-                return
+            with open(output_path, 'a') as f:
+                f.writelines("Solutie: \n")
+                nodCurent.afisDrum(f, afisCost=True, afisLung=True)
+                f.writelines(f"{time.time() - t1} secunde\n")
+                f.writelines(f"nr maxim noduri in memorie: {max_c}\n")
+                f.writelines(f"nr total de noduri calculate: {total_succesori}\n")
+                f.writelines("\n----------------\n")
+                NSOL -= 1
+                if NSOL == 0:
+                    return "functie finalizata"
         lSuccesori = gr.genereazaSuccesori(nodCurent)
         total_succesori += len(lSuccesori)
         for s in lSuccesori:
@@ -483,7 +485,7 @@ def depth_first(gr,NSOL,output_path):
     import sys
     sys.setrecursionlimit(1000)
     try:
-        df(NodParcurgere(gr.start, None, 0, gr.calculeaza_h(gr.start)),gr,NSOL,0,0,output_path)
+        df(NodParcurgere(gr.start, None, 0,"", gr.calculeaza_h(gr.start)),gr,NSOL,0,0,output_path)
     except:
         pass
 
@@ -517,7 +519,7 @@ def depth_first_iterative_deepening(gr,NSOL,adancimeMax,output_path):
   for i in range(1, adancimeMax):
       with open(output_path, 'a') as f:
           f.write(f"Adancime maxima:  {i} \n")
-          dfi(i, NodParcurgere(gr.start, None, 0, gr.calculeaza_h(gr.start)),NSOL, gr, 0,0,output_path)
+          dfi(i, NodParcurgere(gr.start, None, 0,"", gr.calculeaza_h(gr.start)),NSOL, gr, 0,0,output_path)
 
 # ca functia df doar ca impunem si o lungime maxima a drumului
 def dfi(adMaxCurenta, nodCurent, NSOL,gr,total_succesori,max_c,output_path):
@@ -544,136 +546,141 @@ def dfi(adMaxCurenta, nodCurent, NSOL,gr,total_succesori,max_c,output_path):
     for sc in lSuccesori:
         dfi(adMaxCurenta, sc, NSOL, gr,total_succesori, max_c+1,output_path)
 
-def callBF(NSOL,input,output):
-    gr1 = Graph(input+"/input.txt")
-    rez1 = breadth_first(gr1, NSOL=NSOL,output_path= output + "/output.txt",timeout = timeout_time)
+def callBF(NSOL, input_path, output_path,timeout_time):
+    gr1 = Graph(input_path + "/input.txt")
+    rez1 = breadth_first(gr1, NSOL=NSOL, output_path=output_path + "/output.txt", timeout = timeout_time)
 
-    gr2 = Graph(input+"/input_already_final.txt")
-    rez2 = breadth_first(gr2, NSOL=NSOL,output_path= output + "/output_already_final.txt",timeout = timeout_time)
+    gr2 = Graph(input_path + "/input_already_final.txt")
+    rez2 = breadth_first(gr2, NSOL=NSOL, output_path=output_path + "/output_already_final.txt", timeout = timeout_time)
 
-    gr3 = Graph(input+"/input_no_sol.txt")
-    rez3 = breadth_first(gr3, NSOL=NSOL,output_path= output + "/output_no_sol.txt",timeout = timeout_time)
+    gr3 = Graph(input_path + "/input_no_sol.txt")
+    rez3 = breadth_first(gr3, NSOL=NSOL, output_path=output_path + "/output_no_sol.txt", timeout = timeout_time)
 
-    gr4 = Graph(input+"/input_timeout.txt")
-    rez4 = breadth_first(gr4, NSOL=NSOL,output_path= output + "/output_timeout.txt",timeout = timeout_time)
+    gr4 = Graph(input_path + "/input_timeout.txt")
+    rez4 = breadth_first(gr4, NSOL=NSOL, output_path=output_path + "/output_timeout.txt", timeout = timeout_time)
     print("\nRezultat functie: {}".format(rez1))
     print("\nRezultat functie: {}".format(rez2))
     print("\nRezultat functie: {}".format(rez3))
     print("\nRezultat functie: {}".format(rez4))
 
-def callDF(NSOL,input,output):
+def callDF(NSOL, input_path, output_path,timeout_time):
     global continua
 
     continua = True
-    gr1 = Graph(input+"/input.txt")
-    rez1 = depth_first(gr1, NSOL=NSOL,output_path= output + "/output.txt",timeout = timeout_time)
+    gr1 = Graph(input_path + "/input.txt")
+    rez1 = depth_first(gr1, NSOL=NSOL, output_path=output_path + "/output.txt", timeout = timeout_time)
 
     continua = True
-    gr2 = Graph(input+"/input_already_final.txt")
-    rez2 = depth_first(gr2, NSOL=NSOL,output_path= output + "/output_already_final.txt",timeout = timeout_time)
+    gr2 = Graph(input_path + "/input_already_final.txt")
+    rez2 = depth_first(gr2, NSOL=NSOL, output_path=output_path + "/output_already_final.txt", timeout = timeout_time)
 
     continua = True
-    gr3 = Graph(input+"/input_no_sol.txt")
-    rez3 = depth_first(gr3, NSOL=NSOL,output_path= output + "/output_no_sol.txt",timeout = timeout_time)
+    gr3 = Graph(input_path + "/input_no_sol.txt")
+    rez3 = depth_first(gr3, NSOL=NSOL, output_path=output_path + "/output_no_sol.txt", timeout = timeout_time)
 
     continua = True
-    gr4 = Graph(input+"/input_timeout.txt")
-    rez4 = depth_first(gr4, NSOL=NSOL,output_path= output + "/output_timeout.txt",timeout = timeout_time)
+    gr4 = Graph(input_path + "/input_timeout.txt")
+    rez4 = depth_first(gr4, NSOL=NSOL, output_path=output_path + "/output_timeout.txt", timeout = timeout_time)
     print("\nRezultat functie: {}".format(rez1))
     print("\nRezultat functie: {}".format(rez2))
     print("\nRezultat functie: {}".format(rez3))
     print("\nRezultat functie: {}".format(rez4))
 
-def callDFI(NSOL,input,output,adancimeMax):
+def callDFI(NSOL, input_path, output_path, adancimeMax,timeout_time):
     global continua
 
     continua = True
-    gr1 = Graph(input + "/input.txt")
-    rez1 = depth_first_iterative_deepening(gr1, NSOL=NSOL,adancimeMax=adancimeMax, output_path=output + "/output.txt", timeout=timeout_time)
+    gr1 = Graph(input_path + "/input.txt")
+    rez1 = depth_first_iterative_deepening(gr1, NSOL=NSOL, adancimeMax=adancimeMax, output_path=output_path + "/output.txt", timeout=timeout_time)
 
     continua = True
-    gr2 = Graph(input + "/input_already_final.txt")
-    rez2 = depth_first_iterative_deepening(gr2, NSOL=NSOL, adancimeMax=adancimeMax, output_path=output + "/output_already_final.txt", timeout=timeout_time)
+    gr2 = Graph(input_path + "/input_already_final.txt")
+    rez2 = depth_first_iterative_deepening(gr2, NSOL=NSOL, adancimeMax=adancimeMax, output_path=output_path + "/output_already_final.txt", timeout=timeout_time)
 
     continua = True
-    gr3 = Graph(input + "/input_no_sol.txt")
-    rez3 = depth_first_iterative_deepening(gr3, NSOL=NSOL, adancimeMax=adancimeMax, output_path=output + "/output_no_sol.txt", timeout=timeout_time)
+    gr3 = Graph(input_path + "/input_no_sol.txt")
+    rez3 = depth_first_iterative_deepening(gr3, NSOL=NSOL, adancimeMax=adancimeMax, output_path=output_path + "/output_no_sol.txt", timeout=timeout_time)
 
     continua = True
-    gr4 = Graph(input + "/input_timeout.txt")
-    rez4 = depth_first_iterative_deepening(gr4, NSOL=NSOL, adancimeMax=adancimeMax, output_path=output + "/output_timeout.txt", timeout=timeout_time)
+    gr4 = Graph(input_path + "/input_timeout.txt")
+    rez4 = depth_first_iterative_deepening(gr4, NSOL=NSOL, adancimeMax=adancimeMax, output_path=output_path + "/output_timeout.txt", timeout=timeout_time)
     print("\nRezultat functie: {}".format(rez1))
     print("\nRezultat functie: {}".format(rez2))
     print("\nRezultat functie: {}".format(rez3))
     print("\nRezultat functie: {}".format(rez4))
 
-def callAStar(NSOL, input_path, output):
+def callAStar(NSOL, input_path, output_path,timeout_time):
     print("Euristica dorita:", end="")
     euristica = input()
     gr1 = Graph(input_path + "/input.txt")
-    rez1 = a_star(gr1, NSOL=NSOL, tip_euristica=euristica, output_path=output + "/output.txt",timeout = timeout_time)
+    rez1 = a_star(gr1, NSOL=NSOL, tip_euristica=euristica, output_path=output_path + "/output.txt", timeout = timeout_time)
 
     gr2 = Graph(input_path + "/input_already_final.txt")
-    rez2 = a_star(gr2, NSOL=NSOL,tip_euristica=euristica,  output_path=output + "/output_already_final.txt", timeout=timeout_time)
+    rez2 = a_star(gr2, NSOL=NSOL, tip_euristica=euristica, output_path=output_path + "/output_already_final.txt", timeout=timeout_time)
 
     gr3 = Graph(input_path + "/input_no_sol.txt")
-    rez3 = a_star(gr3, NSOL=NSOL, tip_euristica=euristica, output_path=output + "/output_no_sol.txt", timeout=timeout_time)
+    rez3 = a_star(gr3, NSOL=NSOL, tip_euristica=euristica, output_path=output_path + "/output_no_sol.txt", timeout=timeout_time)
 
     gr4 = Graph(input_path + "/input_timeout.txt")
-    rez4 = a_star(gr4, NSOL=NSOL, tip_euristica=euristica, output_path=output + "/output_timeout.txt", timeout=timeout_time)
+    rez4 = a_star(gr4, NSOL=NSOL, tip_euristica=euristica, output_path=output_path + "/output_timeout.txt", timeout=timeout_time)
     print("\nRezultat functie: {}".format(rez1))
     print("\nRezultat functie: {}".format(rez2))
     print("\nRezultat functie: {}".format(rez3))
     print("\nRezultat functie: {}".format(rez4))
 
-def callAStar2(NSOL, input_path, output):
+def callAStar2(NSOL, input_path, output_path,timeout_time):
     print("Eursitica dorita:", end="")
     euristica = input()
     gr1 = Graph(input_path + "/input.txt")
-    rez1 = a_star2(gr1, NSOL=NSOL, tip_euristica=euristica, output_path=output + "/output.txt", timeout=timeout_time)
+    rez1 = a_star2(gr1, NSOL=NSOL, tip_euristica=euristica, output_path=output_path + "/output.txt", timeout=timeout_time)
 
     gr2 = Graph(input_path + "/input_already_final.txt")
-    rez2 = a_star2(gr2, NSOL=NSOL, tip_euristica=euristica, output_path=output + "/output_already_final.txt", timeout=timeout_time)
+    rez2 = a_star2(gr2, NSOL=NSOL, tip_euristica=euristica, output_path=output_path + "/output_already_final.txt", timeout=timeout_time)
 
     gr3 = Graph(input_path + "/input_no_sol.txt")
-    rez3 = a_star2(gr3, NSOL=NSOL, tip_euristica=euristica, output_path=output + "/output_no_sol.txt", timeout=timeout_time)
+    rez3 = a_star2(gr3, NSOL=NSOL, tip_euristica=euristica, output_path=output_path + "/output_no_sol.txt", timeout=timeout_time)
 
     gr4 = Graph(input_path + "/input_timeout.txt")
-    rez4 = a_star2(gr4, NSOL=NSOL, tip_euristica=euristica, output_path=output + "/output_timeout.txt", timeout=timeout_time)
+    rez4 = a_star2(gr4, NSOL=NSOL, tip_euristica=euristica, output_path=output_path + "/output_timeout.txt", timeout=timeout_time)
     print("\nRezultat functie: {}".format(rez1))
     print("\nRezultat functie: {}".format(rez2))
     print("\nRezultat functie: {}".format(rez3))
     print("\nRezultat functie: {}".format(rez4))
 
-def callUnif(NSOL,input,output):
-    gr1 = Graph(input+"/input.txt")
-    rez1 = breadth_first(gr1, NSOL=NSOL,output_path= output + "/output.txt",timeout = timeout_time)
+def callUnif(NSOL, input_path, output_path,timeout_time):
+    gr1 = Graph(input_path + "/input.txt")
+    rez1 = uniform_cost(gr1, NSOL=NSOL, output_path=output_path + "/output.txt", timeout=timeout_time)
 
-    gr2 = Graph(input+"input_already_final.txt")
-    rez2 = breadth_first(gr2, NSOL=NSOL,output_path= output + "/output.txt",timeout = timeout_time)
+    gr2 = Graph(input_path + "/input_already_final.txt")
+    rez2 = uniform_cost(gr2, NSOL=NSOL, output_path=output_path + "/output.txt", timeout = timeout_time)
 
-    gr3 = Graph(input+"input_no_sol.txt")
-    rez3 = breadth_first(gr3, NSOL=NSOL,output_path= output + "/output.txt",timeout = timeout_time)
+    gr3 = Graph(input_path + "/input_no_sol.txt")
+    rez3 = uniform_cost(gr3, NSOL=NSOL, output_path=output_path + "/output.txt", timeout = timeout_time)
 
-    gr4 = Graph(input+"input_timeout.txt")
-    rez4 = breadth_first(gr4, NSOL=NSOL,output_path= output + "/output.txt",timeout = timeout_time)
+    gr4 = Graph(input_path + "/input_timeout.txt")
+    rez4 = uniform_cost(gr4, NSOL=NSOL, output_path=output_path + "/output.txt", timeout = timeout_time)
     print("\nRezultat functie: {}".format(rez1))
     print("\nRezultat functie: {}".format(rez2))
     print("\nRezultat functie: {}".format(rez3))
     print("\nRezultat functie: {}".format(rez4))
 
-def callIdaStar(NSOL,input,output):
-    gr1 = Graph(input+"/input.txt")
-    rez1 = breadth_first(gr1, NSOL=NSOL,output_path= output + "/output.txt",timeout = timeout_time)
+def callIdaStar(NSOL, input_path, output_path,timeout_time):
+    print("Eursitica dorita:", end="")
+    euristica = input()
+    gr1 = Graph(input_path + "/input.txt")
+    rez1 = ida_star(gr1, NSOL=NSOL, tip_euristica=euristica, output_path=output_path + "/output.txt", timeout=timeout_time)
 
-    gr2 = Graph(input+"input_already_final.txt")
-    rez2 = breadth_first(gr2, NSOL=NSOL,output_path= output + "/output.txt",timeout = timeout_time)
+    gr2 = Graph(input_path + "/input_already_final.txt")
+    rez2 = ida_star(gr2, NSOL=NSOL, tip_euristica=euristica,  output_path=output_path + "/output_already_final.txt",
+                    timeout=timeout_time)
 
-    gr3 = Graph(input+"input_no_sol.txt")
-    rez3 = breadth_first(gr3, NSOL=NSOL,output_path= output + "/output.txt",timeout = timeout_time)
+    gr3 = Graph(input_path + "/input_no_sol.txt")
+    rez3 = ida_star(gr3, NSOL=NSOL, tip_euristica=euristica,  output_path=output_path + "/output_no_sol.txt",
+                    timeout=timeout_time)
 
-    gr4 = Graph(input+"input_timeout.txt")
-    rez4 = breadth_first(gr4, NSOL=NSOL,output_path= output + "/output.txt",timeout = timeout_time)
+    gr4 = Graph(input_path + "/input_timeout.txt")
+    rez4 = ida_star(gr4, NSOL=NSOL, tip_euristica=euristica,  output_path=output_path + "/output_timeout.txt",
+                    timeout=timeout_time)
     print("\nRezultat functie: {}".format(rez1))
     print("\nRezultat functie: {}".format(rez2))
     print("\nRezultat functie: {}".format(rez3))
@@ -692,22 +699,22 @@ def solve(NSOL,input_path,output_path,timeout_time):
     print("ALegerea ta: ", end="")
     s = int(input())
     if s == 1:
-        callBF(NSOL,input_path, output_path)
+        callBF(NSOL,input_path, output_path,timeout_time)
     if s == 2:
-        callDF(NSOL, input_path, output_path)
+        callDF(NSOL, input_path, output_path,timeout_time)
     if s == 3:
         print("Adancimea maxima dorita:", end="")
         adancimeMax = int(input())
-        callDFI(NSOL, input_path, output_path,adancimeMax)
+        callDFI(NSOL, input_path, output_path,adancimeMax,timeout_time)
     if s == 4:
-        callAStar(NSOL,input_path, output_path)
+        callAStar(NSOL,input_path, output_path,timeout_time)
     if s == 5:
-        callAStar2(NSOL,input_path, output_path)
-    # if s == 6:
-    #     rez = uniform_cost(gr, NSOL=NSOL,timeout = timeout_time)
-    # if s == 7:
-    #     rez = ida_star(gr, NSOL=NSOL,timeout = timeout_time)
-    # print("\nRezultat functie: {}".format(rez))
+        callAStar2(NSOL,input_path, output_path,timeout_time)
+    if s == 6:
+        callUnif(NSOL,input_path,output_path,timeout_time)
+
+    if s == 7:
+       callIdaStar(NSOL,input_path,output_path,timeout_time)
 
 
 

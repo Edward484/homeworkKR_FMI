@@ -1,0 +1,48 @@
+Solutie: 
+1) 
+
+0 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+Cost:  0
+Lungime:  1
+4.110851049423218 secunde
+nr total de noduri calculate: 0
+
+----------------
+Solutie: 
+1) 
+
+0 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+Cost:  0
+Lungime:  1
+4.11285138130188 secunde
+nr total de noduri calculate: 0
+
+----------------
+Solutie: 
+1) 
+
+0 :  5 4 rosu
+1 :  1 0 gol
+2 :  4 2 albastru
+3 :  2 0 gol
+4 :  5 4 maro
+5 :  20 10 kaki
+
+Cost:  0
+Lungime:  1
+4.114853382110596 secunde
+nr total de noduri calculate: 0
+
+----------------

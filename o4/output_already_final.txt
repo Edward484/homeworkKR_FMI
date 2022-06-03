@@ -9,7 +9,7 @@ Solutie:
 
 Cost:  0
 Lungime:  1
-3.7190823554992676 secunde
+32.09734082221985 secunde
 nr maxim noduri in memorie: 1
 nr total de noduri calculate: 0
 
@@ -41,7 +41,7 @@ Din vasul 1 s-au turnat 1 litri de rosu in vasul 0 cu costul 2.0 :  5 4 rosu
 
 Cost:  4
 Lungime:  3
-3.7230803966522217 secunde
+32.09934139251709 secunde
 nr maxim noduri in memorie: 40
 nr total de noduri calculate: 41
 
@@ -65,48 +65,8 @@ Din vasul 4 s-au turnat 1 de maro in vasul 1 cu costul 4.0 :  5 4 rosu
 
 Cost:  4
 Lungime:  2
-3.7270891666412354 secunde
+32.10233950614929 secunde
 nr maxim noduri in memorie: 59
 nr total de noduri calculate: 61
-
-----------------
-Solutie: 
-1) 
-00 :  5 4 rosu
-1 :  1 0 gol
-2 :  4 2 albastru
-3 :  2 0 gol
-4 :  5 4 maro
-5 :  20 10 kaki
-
-2) 
-Din vasul 0 s-au turnat 1 de rosu in vasul 1 cu costul 2.0 :  5 3 rosu
-1 :  1 1 rosu
-2 :  4 2 albastru
-3 :  2 0 gol
-4 :  5 4 maro
-5 :  20 10 kaki
-
-3) 
-Din vasul 1 s-au turnat 1 litri de rosu in vasul 3 cu costul 2.0 :  5 3 rosu
-1 :  1 0 gol
-2 :  4 2 albastru
-3 :  2 1 rosu
-4 :  5 4 maro
-5 :  20 10 kaki
-
-4) 
-Din vasul 3 s-au turnat 1 litri de rosu in vasul 0 cu costul 2.0 :  5 4 rosu
-1 :  1 0 gol
-2 :  4 2 albastru
-3 :  2 0 gol
-4 :  5 4 maro
-5 :  20 10 kaki
-
-Cost:  6
-Lungime:  4
-3.7320806980133057 secunde
-nr maxim noduri in memorie: 122
-nr total de noduri calculate: 127
 
 ----------------
